@@ -3,13 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Delhi School Admin - Email Manager</title>
+  <title>Delhi School Admin - WhatsApp Manager</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <style>
     body {
       font-size: 0.9rem;
@@ -17,10 +15,8 @@
       height: 100vh;
       margin: 0;
       padding: 0;
-      /* Optional: prevent touch zoom via CSS (works in some browsers) */
-      touch-action: pan-x pan-y; /* disables pinch-zoom */
+      touch-action: pan-x pan-y;
     }
-    /* Login container - centered */
     #loginContainer {
       width: 100%;
       max-width: 400px;
@@ -33,7 +29,6 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
-    /* Main wrapper (hidden by default) */
     .wrapper {
       display: none;
       width: 100%;
@@ -86,7 +81,6 @@
       padding: 20px;
       min-height: 100vh;
     }
-    /* Navbar styling - ensure it's visible */
     .navbar {
       background-color: #fff;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -113,11 +107,14 @@
       background-color: #e9ecef;
       border-color: #dee2e6;
     }
-    .table-actions {
-      min-width: 100px;
+    .btn-whatsapp {
+      background-color: #25D366;
+      border-color: #25D366;
+      color: white;
     }
-    .status-badge {
-      font-size: 0.8rem;
+    .btn-whatsapp:hover {
+      background-color: #128C7E;
+      border-color: #128C7E;
     }
     .footer {
       background: #fff;
@@ -151,10 +148,16 @@
     .dropdown-menu {
       z-index: 1050;
     }
+    .api-settings {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 <body>
-  <!-- Login Container (initially visible) -->
+  <!-- Login Container -->
   <div id="loginContainer">
     <div class="text-center mb-4">
       <img src="images/logo.jfif" alt="DWS Logo" style="height: 60px; width: auto;" onerror="this.style.display='none'">
@@ -169,10 +172,10 @@
       <div id="loginError" class="error-message mb-2"></div>
       <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
-    <p class="text-center text-muted mt-3 small">Use password <strong></strong></p>
+    <p class="text-center text-muted mt-3 small">Use password: <strong>admin123</strong></p>
   </div>
 
-  <!-- Main Admin Wrapper (hidden initially) -->
+  <!-- Main Admin Wrapper -->
   <div class="wrapper" id="adminWrapper">
     <!-- Sidebar -->
     <nav id="sidebar">
@@ -181,30 +184,20 @@
           <img src="images/logo.jfif" alt="DWS Logo">
           DWS Admin
         </h3>
-        <p class="small mb-0">Email Manager</p>
+        <p class="small mb-0">WhatsApp Manager</p>
       </div>
       <ul class="list-unstyled components">
-        <li class="active">
-          <a href="#"><i class="fas fa-tachometer-alt"></i><span> Dashboard</span></a>
-        </li>
-        <li>
-          <a href="#"><i class="fas fa-users"></i><span> Parents</span></a>
-        </li>
-        <li>
-          <a href="#"><i class="fas fa-envelope"></i><span> Broadcast</span></a>
-        </li>
-        <li>
-          <a href="#"><i class="fas fa-file-import"></i><span> Import</span></a>
-        </li>
-        <li>
-          <a href="#"><i class="fas fa-cog"></i><span> Settings</span></a>
-        </li>
+        <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i><span> Dashboard</span></a></li>
+        <li><a href="#"><i class="fas fa-users"></i><span> Parents</span></a></li>
+        <li><a href="#"><i class="fab fa-whatsapp"></i><span> Broadcast</span></a></li>
+        <li><a href="#"><i class="fas fa-file-import"></i><span> Import</span></a></li>
+        <li><a href="#" data-bs-toggle="modal" data-bs-target="#apiSettingsModal"><i class="fas fa-cog"></i><span> API Settings</span></a></li>
       </ul>
     </nav>
 
     <!-- Page Content -->
     <div id="content">
-      <!-- Top Navbar - should be clearly visible -->
+      <!-- Top Navbar -->
       <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
           <button type="button" id="sidebarCollapse" class="btn btn-outline-primary d-lg-none">
@@ -217,7 +210,7 @@
                 <i class="fas fa-user-circle"></i> Profile
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#apiSettingsModal"><i class="fas fa-cog me-2"></i>API Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
               </ul>
@@ -228,7 +221,7 @@
 
       <!-- Main Content Area -->
       <div class="container-fluid">
-        <!-- Header with actions -->
+        <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h2><i class="fas fa-users me-2"></i>Parent Management</h2>
           <div>
@@ -241,7 +234,7 @@
           </div>
         </div>
 
-        <!-- Parents Table Card -->
+        <!-- Parents Table -->
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-white">
             <div class="row align-items-center">
@@ -251,7 +244,7 @@
               <div class="col-md-6">
                 <div class="input-group">
                   <span class="input-group-text"><i class="fas fa-search"></i></span>
-                  <input type="text" class="form-control" placeholder="Search by name, email, student..." id="searchInput">
+                  <input type="text" class="form-control" placeholder="Search by name, phone, student..." id="searchInput">
                 </div>
               </div>
             </div>
@@ -263,34 +256,29 @@
                   <tr>
                     <th width="40"><input class="form-check-input" type="checkbox" id="selectAll"></th>
                     <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
+                    <th>Phone Number</th>
                     <th>Student Name</th>
                     <th>Class/Section</th>
                     <th class="text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody id="parentsTableBody">
-                  <!-- Rows will be dynamically inserted here -->
-                </tbody>
+                <tbody id="parentsTableBody"></tbody>
               </table>
             </div>
           </div>
           <div class="card-footer bg-white d-flex justify-content-between align-items-center">
-            <div>
-              <span id="entryCount">Showing 0 entries</span>
-            </div>
+            <div><span id="entryCount">Showing 0 entries</span></div>
             <div>
               <button class="btn btn-sm btn-outline-danger me-2" onclick="deleteSelected()"><i class="fas fa-trash-alt"></i> Delete Selected</button>
-              <button class="btn btn-sm btn-outline-primary" onclick="prepareBroadcast()"><i class="fas fa-envelope"></i> Email Selected</button>
+              <button class="btn btn-sm btn-outline-primary" onclick="prepareBroadcast()"><i class="fab fa-whatsapp"></i> WhatsApp Selected</button>
             </div>
           </div>
         </div>
 
-        <!-- Email Message Composer Card -->
+        <!-- WhatsApp Composer Card -->
         <div class="card shadow-sm">
           <div class="card-header bg-white">
-            <h5 class="mb-0"><i class="fas fa-envelope me-2 text-primary"></i>Compose Bulk Email</h5>
+            <h5 class="mb-0"><i class="fab fa-whatsapp me-2 text-success"></i>Compose Bulk WhatsApp Message</h5>
           </div>
           <div class="card-body">
             <div class="mb-3">
@@ -305,21 +293,16 @@
               <label for="classSelect" class="form-label">Select Class:</label>
               <select class="form-select" id="classSelect">
                 <option value="">-- Choose --</option>
-                <!-- Options will be populated dynamically -->
               </select>
             </div>
             <div class="mb-3">
-              <label for="emailSubject" class="form-label">Subject</label>
-              <input type="text" class="form-control" id="emailSubject" placeholder="e.g., Holiday Announcement">
-            </div>
-            <div class="mb-3">
-              <label for="messageText" class="form-label">Message (HTML allowed)</label>
+              <label for="messageText" class="form-label">Message</label>
               <textarea class="form-control" id="messageText" rows="4" placeholder="Type your message here... e.g., Tomorrow is a holiday."></textarea>
               <div class="form-text">Characters: <span id="charCount">0</span></div>
             </div>
             <div class="d-grid">
-              <button class="btn btn-primary btn-lg" onclick="sendBulkEmail()">
-                <i class="fas fa-paper-plane me-2"></i>Send Bulk Email
+              <button class="btn btn-success btn-lg" onclick="sendBulkWhatsApp()">
+                <i class="fab fa-whatsapp me-2"></i>Send Bulk WhatsApp
               </button>
             </div>
           </div>
@@ -341,7 +324,7 @@
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="modalTitle"><i class="fas fa-user-plus me-2"></i>Add New Parent</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="parentForm">
@@ -350,12 +333,9 @@
               <input type="text" class="form-control" id="parentName" required>
             </div>
             <div class="mb-3">
-              <label for="parentEmail" class="form-label">Email Address *</label>
-              <input type="email" class="form-control" id="parentEmail" placeholder="parent@example.com" required>
-            </div>
-            <div class="mb-3">
-              <label for="parentPhone" class="form-label">Phone Number (optional)</label>
-              <input type="tel" class="form-control" id="parentPhone" placeholder="+91-9059653999">
+              <label for="parentPhone" class="form-label">WhatsApp Number (with country code) *</label>
+              <input type="tel" class="form-control" id="parentPhone" placeholder="+919876543210" required>
+              <div class="form-text">Format: + followed by country code and number (e.g., +919876543210)</div>
             </div>
             <div class="mb-3">
               <label for="studentName" class="form-label">Student Name</label>
@@ -375,17 +355,62 @@
     </div>
   </div>
 
-  <!-- Bootstrap JS and dependencies -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Custom JavaScript with EmailJS integration -->
-  <script>
-    // ==================== INITIALIZE EMAILJS ====================
-    (function() {
-      // 🔁 REPLACE WITH YOUR ACTUAL PUBLIC KEY FROM EMAILJS
-      emailjs.init("YOUR_PUBLIC_KEY");  // <-- CHANGE THIS
-    })();
+  <!-- API Settings Modal -->
+  <div class="modal fade" id="apiSettingsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title"><i class="fas fa-cog me-2"></i>WhatsApp API Settings</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted">Enter your WhatsApp API provider credentials (e.g., UltraMsg, Twilio).</p>
+          <div class="mb-3">
+            <label for="apiProvider" class="form-label">Provider</label>
+            <select class="form-select" id="apiProvider">
+              <option value="ultramsg">UltraMsg</option>
+              <option value="twilio">Twilio (requires backend)</option>
+              <option value="chatapi">Chat API</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="apiInstanceId" class="form-label">Instance ID / Account SID</label>
+            <input type="text" class="form-control" id="apiInstanceId" placeholder="instance12345">
+          </div>
+          <div class="mb-3">
+            <label for="apiToken" class="form-label">API Token / Auth Token</label>
+            <input type="text" class="form-control" id="apiToken" placeholder="your-secret-token">
+          </div>
+          <div class="mb-3">
+            <label for="apiUrl" class="form-label">API Base URL (optional)</label>
+            <input type="text" class="form-control" id="apiUrl" placeholder="https://api.ultramsg.com/">
+          </div>
+          <div class="alert alert-info small">
+            <i class="fas fa-info-circle me-1"></i> For demo, we use UltraMsg format. Your credentials stay in browser storage.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="saveApiSettings()">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // ==================== LOGIN FUNCTIONALITY ====================
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ==================== GLOBAL VARIABLES ====================
+    let parents = [];
+    let editingIndex = -1;
+    let apiSettings = {
+      provider: 'ultramsg',
+      instanceId: '',
+      token: '',
+      baseUrl: 'https://api.ultramsg.com/'
+    };
+
+    // ==================== LOGIN ====================
     function checkLogin() {
       const password = document.getElementById('password').value;
       const errorDiv = document.getElementById('loginError');
@@ -393,6 +418,7 @@
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('adminWrapper').style.display = 'flex';
         loadFromStorage();
+        loadApiSettings();
         document.getElementById('charCount').textContent = document.getElementById('messageText').value.length;
       } else {
         errorDiv.textContent = 'Incorrect password. Please try again.';
@@ -407,31 +433,20 @@
     }
 
     document.getElementById('password').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        checkLogin();
-      }
+      if (e.key === 'Enter') { e.preventDefault(); checkLogin(); }
     });
 
-    // ==================== DATA & PERSISTENCE ====================
-    let parents = [];
-    let editingIndex = -1;
-
+    // ==================== LOCAL STORAGE ====================
     function loadFromStorage() {
       const stored = localStorage.getItem('schoolParents');
       if (stored) {
-        try {
-          parents = JSON.parse(stored);
-        } catch (e) {
-          parents = [];
-        }
+        try { parents = JSON.parse(stored); } catch (e) { parents = []; }
       } else {
-        // Default sample data with emails
         parents = [
-          { name: "John Doe", email: "john.doe@example.com", phone: "+1234567890", student: "Emily Doe", class: "5A" },
-          { name: "Jane Smith", email: "jane.smith@example.com", phone: "+1987654321", student: "Michael Smith", class: "3B" },
-          { name: "Robert Johnson", email: "robert.j@example.com", phone: "+1122334455", student: "Anna Johnson", class: "2C" },
-          { name: "Maria Garcia", email: "maria.garcia@example.com", phone: "+5566778899", student: "Carlos Garcia", class: "1A" }
+          { name: "John Doe", phone: "+1234567890", student: "Emily Doe", class: "5A" },
+          { name: "Jane Smith", phone: "+1987654321", student: "Michael Smith", class: "3B" },
+          { name: "Robert Johnson", phone: "+1122334455", student: "Anna Johnson", class: "2C" },
+          { name: "Maria Garcia", phone: "+5566778899", student: "Carlos Garcia", class: "1A" }
         ];
       }
       renderTable();
@@ -442,6 +457,27 @@
       localStorage.setItem('schoolParents', JSON.stringify(parents));
     }
 
+    function loadApiSettings() {
+      const stored = localStorage.getItem('whatsappApiSettings');
+      if (stored) {
+        try { apiSettings = JSON.parse(stored); } catch (e) { }
+      }
+      document.getElementById('apiProvider').value = apiSettings.provider;
+      document.getElementById('apiInstanceId').value = apiSettings.instanceId;
+      document.getElementById('apiToken').value = apiSettings.token;
+      document.getElementById('apiUrl').value = apiSettings.baseUrl;
+    }
+
+    function saveApiSettings() {
+      apiSettings.provider = document.getElementById('apiProvider').value;
+      apiSettings.instanceId = document.getElementById('apiInstanceId').value.trim();
+      apiSettings.token = document.getElementById('apiToken').value.trim();
+      apiSettings.baseUrl = document.getElementById('apiUrl').value.trim() || 'https://api.ultramsg.com/';
+      localStorage.setItem('whatsappApiSettings', JSON.stringify(apiSettings));
+      bootstrap.Modal.getInstance(document.getElementById('apiSettingsModal')).hide();
+      alert('API settings saved.');
+    }
+
     // ==================== TABLE RENDERING ====================
     function renderTable() {
       const tbody = document.getElementById('parentsTableBody');
@@ -449,17 +485,15 @@
         <tr>
           <td><input class="form-check-input parent-checkbox" type="checkbox" value="${index}"></td>
           <td>${escapeHtml(p.name)}</td>
-          <td>${escapeHtml(p.email)}</td>
-          <td>${escapeHtml(p.phone || '—')}</td>
+          <td class="text-primary font-monospace">${escapeHtml(p.phone)}</td>
           <td>${escapeHtml(p.student || '—')}</td>
           <td><span class="badge bg-light text-dark border">${escapeHtml(p.class || '—')}</span></td>
           <td class="text-center">
-            <button class="btn btn-sm btn-outline-primary me-1" onclick="editParent(${index})" title="Edit"><i class="fas fa-edit"></i></button>
-            <button class="btn btn-sm btn-outline-danger" onclick="deleteParent(${index})" title="Delete"><i class="fas fa-trash"></i></button>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editParent(${index})"><i class="fas fa-edit"></i></button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteParent(${index})"><i class="fas fa-trash"></i></button>
           </td>
         </tr>
       `).join('');
-
       document.getElementById('entryCount').innerText = `Showing ${parents.length} entries`;
       document.getElementById('selectAll').checked = false;
       document.getElementById('selectAll').indeterminate = false;
@@ -475,203 +509,150 @@
 
     // ==================== SEARCH ====================
     function applySearchFilter() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      const rows = document.querySelectorAll('#parentsTableBody tr');
-      rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('#parentsTableBody tr').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none';
       });
     }
     document.getElementById('searchInput').addEventListener('keyup', applySearchFilter);
 
-    // ==================== CHECKBOX HANDLING ====================
+    // ==================== CHECKBOXES ====================
     function updateSelectAllState() {
       const checkboxes = document.querySelectorAll('.parent-checkbox:not([style*="display: none"])');
       const allChecked = Array.from(checkboxes).every(cb => cb.checked);
       const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
       const selectAll = document.getElementById('selectAll');
-
-      if (allChecked && checkboxes.length > 0) {
-        selectAll.checked = true;
-        selectAll.indeterminate = false;
+      if (allChecked && checkboxes.length) {
+        selectAll.checked = true; selectAll.indeterminate = false;
       } else if (anyChecked) {
-        selectAll.checked = false;
-        selectAll.indeterminate = true;
+        selectAll.checked = false; selectAll.indeterminate = true;
       } else {
-        selectAll.checked = false;
-        selectAll.indeterminate = false;
+        selectAll.checked = false; selectAll.indeterminate = false;
       }
     }
 
     document.getElementById('parentsTableBody').addEventListener('change', function(e) {
-      if (e.target.classList.contains('parent-checkbox')) {
-        updateSelectAllState();
-      }
+      if (e.target.classList.contains('parent-checkbox')) updateSelectAllState();
     });
 
     document.getElementById('selectAll').addEventListener('change', function(e) {
-      const checkboxes = document.querySelectorAll('.parent-checkbox:not([style*="display: none"])');
-      checkboxes.forEach(cb => cb.checked = e.target.checked);
+      document.querySelectorAll('.parent-checkbox:not([style*="display: none"])').forEach(cb => cb.checked = e.target.checked);
       updateSelectAllState();
     });
 
-    // ==================== CRUD OPERATIONS ====================
+    // ==================== CRUD ====================
     function saveParent() {
       const name = document.getElementById('parentName').value.trim();
-      const email = document.getElementById('parentEmail').value.trim();
       const phone = document.getElementById('parentPhone').value.trim();
       const student = document.getElementById('studentName').value.trim();
       const className = document.getElementById('studentClass').value.trim();
-
-      if (!name || !email) {
-        alert('Please fill in required fields (Name and Email).');
-        return;
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        alert('Please enter a valid email address.');
-        return;
-      }
-
-      const parentData = { name, email, phone, student, class: className };
-
-      if (editingIndex === -1) {
-        parents.push(parentData);
-      } else {
-        parents[editingIndex] = parentData;
-        editingIndex = -1;
-        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus me-2"></i>Add New Parent';
-        document.getElementById('saveBtn').innerText = 'Save Parent';
-      }
-
-      saveToStorage();
-      renderTable();
-      populateClassDropdown();
-
+      if (!name || !phone) { alert('Please fill in required fields.'); return; }
+      if (!/^\+\d{7,15}$/.test(phone)) { alert('Invalid phone format. Use + and 7-15 digits.'); return; }
+      const parentData = { name, phone, student, class: className };
+      if (editingIndex === -1) parents.push(parentData);
+      else { parents[editingIndex] = parentData; editingIndex = -1; resetModalTitle(); }
+      saveToStorage(); renderTable(); populateClassDropdown();
       document.getElementById('parentForm').reset();
       bootstrap.Modal.getInstance(document.getElementById('addParentModal')).hide();
     }
 
     function editParent(index) {
-      const parent = parents[index];
-      document.getElementById('parentName').value = parent.name;
-      document.getElementById('parentEmail').value = parent.email;
-      document.getElementById('parentPhone').value = parent.phone || '';
-      document.getElementById('studentName').value = parent.student || '';
-      document.getElementById('studentClass').value = parent.class || '';
-
+      const p = parents[index];
+      document.getElementById('parentName').value = p.name;
+      document.getElementById('parentPhone').value = p.phone;
+      document.getElementById('studentName').value = p.student || '';
+      document.getElementById('studentClass').value = p.class || '';
       editingIndex = index;
       document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Parent';
       document.getElementById('saveBtn').innerText = 'Update Parent';
       new bootstrap.Modal(document.getElementById('addParentModal')).show();
     }
 
+    function resetModalTitle() {
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus me-2"></i>Add New Parent';
+      document.getElementById('saveBtn').innerText = 'Save Parent';
+    }
+
     function deleteParent(index) {
-      if (confirm('Are you sure you want to delete this parent?')) {
-        parents.splice(index, 1);
-        saveToStorage();
-        renderTable();
-        populateClassDropdown();
-      }
+      if (confirm('Delete this parent?')) { parents.splice(index,1); saveToStorage(); renderTable(); populateClassDropdown(); }
     }
 
     function deleteSelected() {
       const selected = document.querySelectorAll('.parent-checkbox:checked');
-      if (selected.length === 0) {
-        alert('No parents selected.');
-        return;
-      }
-      if (confirm(`Delete ${selected.length} selected parent(s)?`)) {
-        const indices = Array.from(selected).map(cb => parseInt(cb.value)).sort((a,b) => b - a);
-        for (let idx of indices) {
-          parents.splice(idx, 1);
-        }
-        saveToStorage();
-        renderTable();
-        populateClassDropdown();
+      if (!selected.length) return alert('No parents selected.');
+      if (confirm(`Delete ${selected.length} parent(s)?`)) {
+        Array.from(selected).map(cb => parseInt(cb.value)).sort((a,b)=>b-a).forEach(idx => parents.splice(idx,1));
+        saveToStorage(); renderTable(); populateClassDropdown();
       }
     }
 
-    // ==================== CLASS DROPDOWN FOR BROADCAST ====================
+    // ==================== CLASS DROPDOWN ====================
     function populateClassDropdown() {
-      const classSet = new Set();
-      parents.forEach(p => { if (p.class) classSet.add(p.class); });
-      const sortedClasses = Array.from(classSet).sort();
+      const classes = [...new Set(parents.map(p => p.class).filter(Boolean))].sort();
       const select = document.getElementById('classSelect');
-      select.innerHTML = '<option value="">-- Choose --</option>' + 
-        sortedClasses.map(c => `<option value="${c}">${c}</option>`).join('');
+      select.innerHTML = '<option value="">-- Choose --</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
     document.getElementById('recipientType').addEventListener('change', function() {
       document.getElementById('classSelector').style.display = this.value === 'class' ? 'block' : 'none';
     });
 
-    // ==================== EMAIL BROADCAST ====================
+    // ==================== WHATSAPP BROADCAST (REAL API) ====================
     function prepareBroadcast() {
       const selected = document.querySelectorAll('.parent-checkbox:checked');
-      if (selected.length === 0) {
-        alert('Please select at least one parent from the table.');
-      } else {
+      if (!selected.length) alert('Please select at least one parent.');
+      else {
         document.getElementById('recipientType').value = 'selected';
         document.getElementById('classSelector').style.display = 'none';
         document.getElementById('messageText').focus();
-        alert(`Selected ${selected.length} parent(s). You can now compose an email.`);
+        alert(`Selected ${selected.length} parent(s). Compose your message.`);
       }
     }
 
-    async function sendBulkEmail() {
+    async function sendBulkWhatsApp() {
       const recipientType = document.getElementById('recipientType').value;
-      const subject = document.getElementById('emailSubject').value.trim();
       const message = document.getElementById('messageText').value.trim();
+      if (!message) return alert('Please enter a message.');
 
-      if (!subject) {
-        alert('Please enter an email subject.');
-        return;
-      }
-      if (!message) {
-        alert('Please enter a message.');
-        return;
-      }
-
-      let emails = [];
-
-      if (recipientType === 'all') {
-        emails = parents.map(p => p.email);
-      } else if (recipientType === 'selected') {
+      let numbers = [];
+      if (recipientType === 'all') numbers = parents.map(p => p.phone);
+      else if (recipientType === 'selected') {
         const selected = document.querySelectorAll('.parent-checkbox:checked');
-        if (selected.length === 0) {
-          alert('No parents selected. Please select some or choose "All Parents".');
-          return;
-        }
-        emails = Array.from(selected).map(cb => parents[parseInt(cb.value)].email);
+        if (!selected.length) return alert('No parents selected.');
+        numbers = Array.from(selected).map(cb => parents[parseInt(cb.value)].phone);
       } else if (recipientType === 'class') {
         const selectedClass = document.getElementById('classSelect').value;
-        if (!selectedClass) {
-          alert('Please select a class.');
-          return;
-        }
-        emails = parents.filter(p => p.class === selectedClass).map(p => p.email);
-        if (emails.length === 0) {
-          alert(`No parents found in class "${selectedClass}".`);
-          return;
-        }
+        if (!selectedClass) return alert('Please select a class.');
+        numbers = parents.filter(p => p.class === selectedClass).map(p => p.phone);
+        if (!numbers.length) return alert(`No parents in class "${selectedClass}".`);
       }
 
-      // Remove duplicates
-      emails = [...new Set(emails)];
+      numbers = [...new Set(numbers)]; // remove duplicates
 
-      if (emails.length === 0) {
-        alert('No email addresses found.');
+      if (!numbers.length) return alert('No phone numbers found.');
+
+      // Check API settings
+      if (!apiSettings.instanceId || !apiSettings.token) {
+        alert('Please configure WhatsApp API settings first (click Profile → API Settings).');
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('apiSettingsModal')).show();
         return;
       }
 
-      // Prepare EmailJS template parameters
-      const templateParams = {
-        subject: subject,
-        message: message,
-        to_emails: emails.join(', ')  // EmailJS can handle multiple recipients if your template supports it
-      };
+      // Build API URL based on provider (example uses UltraMsg)
+      let url, payload;
+      if (apiSettings.provider === 'ultramsg') {
+        url = `${apiSettings.baseUrl}${apiSettings.instanceId}/messages/chat`;
+        payload = {
+          token: apiSettings.token,
+          to: numbers.join(','),  // UltraMsg accepts comma-separated
+          body: message,
+          priority: 10,
+          referenceId: 'school_' + Date.now()
+        };
+      } else {
+        alert('Only UltraMsg is implemented in this demo. Please select UltraMsg or modify the code.');
+        return;
+      }
 
       const sendBtn = event.target;
       const originalText = sendBtn.innerHTML;
@@ -679,16 +660,20 @@
       sendBtn.disabled = true;
 
       try {
-        // 🔁 REPLACE WITH YOUR ACTUAL SERVICE ID AND TEMPLATE ID
-        const response = await emailjs.send(
-          "YOUR_SERVICE_ID",    // <-- CHANGE THIS
-          "YOUR_TEMPLATE_ID",   // <-- CHANGE THIS
-          templateParams
-        );
-        alert(`✅ Email sent successfully to ${emails.length} recipient(s)!`);
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert(`✅ WhatsApp message sent to ${numbers.length} recipient(s)! Check provider dashboard.`);
+        } else {
+          alert(`❌ API error: ${data.description || data.message || 'Unknown error'}`);
+        }
       } catch (error) {
-        console.error('EmailJS error:', error);
-        alert('❌ Failed to send emails. Check console for details.');
+        console.error(error);
+        alert('❌ Network error. Check your API settings and internet.');
       } finally {
         sendBtn.innerHTML = originalText;
         sendBtn.disabled = false;
@@ -700,12 +685,19 @@
       document.getElementById('charCount').textContent = this.value.length;
     });
 
-    // Sidebar toggle on mobile
+    // Sidebar toggle
     document.getElementById('sidebarCollapse').addEventListener('click', function() {
       document.getElementById('sidebar').classList.toggle('active');
     });
 
-    // Initialize char count on page load (login will trigger loadFromStorage)
+    // Ensure modal title resets when modal is closed
+    document.getElementById('addParentModal').addEventListener('hidden.bs.modal', function() {
+      if (editingIndex !== -1) {
+        editingIndex = -1;
+        resetModalTitle();
+      }
+      document.getElementById('parentForm').reset();
+    });
   </script>
 </body>
 </html>
